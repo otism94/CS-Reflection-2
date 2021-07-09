@@ -1,22 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Reflection.Data;
 using Reflection.Models;
+using Reflection.ViewModels;
 
 namespace Reflection.Controllers
 {
     public class CompaniesController : Controller
     {
         private readonly Context _context;
+        private readonly IWebHostEnvironment _hostEnvironment;
 
-        public CompaniesController(Context context)
+        public CompaniesController(Context context, IWebHostEnvironment hostEnvironment)
         {
             _context = context;
+            _hostEnvironment = hostEnvironment;
         }
 
         // GET: Companies
@@ -92,12 +97,25 @@ namespace Reflection.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Email,Logo,Website")] Company company)
+        public async Task<IActionResult> Create([Bind("Name,Email,Website,LogoFile")] Company company)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
+                    if (company.LogoFile != null)
+                    {
+                        string wwwRootPath = _hostEnvironment.WebRootPath;
+                        string fileName = Path.GetFileNameWithoutExtension(company.LogoFile.FileName);
+                        string extension = Path.GetExtension(company.LogoFile.FileName);
+                        company.LogoName = fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
+                        string path = Path.Combine(wwwRootPath + "/img/", fileName);
+                        using (var fileStream = new FileStream(path, FileMode.Create))
+                        {
+                            await company.LogoFile.CopyToAsync(fileStream);
+                        }
+                    }
+
                     _context.Add(company);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
@@ -145,7 +163,7 @@ namespace Reflection.Controllers
             if (await TryUpdateModelAsync<Company>(
                     companyToUpdate,
                     "",
-                    c => c.Name, c => c.Email, c => c.Logo, c => c.Website))
+                    c => c.Name, c => c.Email, c => c.Website, c => c.LogoName))
             {
                 try
                 {
@@ -202,6 +220,12 @@ namespace Reflection.Controllers
 
             try
             {
+                var imagePath = Path.Combine(_hostEnvironment.WebRootPath, "image", company.LogoName);
+                if (System.IO.File.Exists(imagePath))
+                {
+                    System.IO.File.Delete(imagePath);
+                }
+
                 _context.Companies.Remove(company);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
