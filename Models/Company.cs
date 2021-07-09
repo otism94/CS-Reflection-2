@@ -20,6 +20,7 @@ namespace Reflection.Models
         [DisplayName("Logo")]
         public string LogoName { get; set; }
         [NotMapped]
+        [DisplayName("Logo")]
         public IFormFile LogoFile { get; set; }
 
         public ICollection<Employee> Employees { get; set; }

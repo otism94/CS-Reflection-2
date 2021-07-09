@@ -4,12 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Reflection.Data;
 using Reflection.Models;
-using Reflection.ViewModels;
 
 namespace Reflection.Controllers
 {
@@ -108,7 +108,13 @@ namespace Reflection.Controllers
                         string wwwRootPath = _hostEnvironment.WebRootPath;
                         string fileName = Path.GetFileNameWithoutExtension(company.LogoFile.FileName);
                         string extension = Path.GetExtension(company.LogoFile.FileName);
-                        company.LogoName = fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
+
+                        Random random = new Random();
+                        string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                        string filePrefix = new(Enumerable.Repeat(chars, 10)
+                            .Select(c => c[random.Next(c.Length)]).ToArray());
+
+                        company.LogoName = fileName = filePrefix + DateTime.Now.ToString("yymmssfff") + extension;
                         string path = Path.Combine(wwwRootPath + "/img/", fileName);
                         using (var fileStream = new FileStream(path, FileMode.Create))
                         {
@@ -220,7 +226,7 @@ namespace Reflection.Controllers
 
             try
             {
-                var imagePath = Path.Combine(_hostEnvironment.WebRootPath, "image", company.LogoName);
+                var imagePath = Path.Combine(_hostEnvironment.WebRootPath, "img", company.LogoName);
                 if (System.IO.File.Exists(imagePath))
                 {
                     System.IO.File.Delete(imagePath);
@@ -232,7 +238,7 @@ namespace Reflection.Controllers
             }
             catch (DbUpdateException)
             {
-                return RedirectToAction(nameof(Delete), new { id = id, saveChangesError = true });
+                return RedirectToAction(nameof(Delete), new { id, saveChangesError = true });
             }
         }
 
