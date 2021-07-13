@@ -18,6 +18,38 @@ namespace Reflection.Data
                 return; // DB is seeded
             }
 
+            var companies = new Company[]
+            {
+                new Company()
+                {
+                    Name = "Speedwagon Foundation",
+                    Email = "contact@speedwagon.org",
+                    LogoName = "SPW.png",
+                    Website = "https://speedwagonfoundation.org/"
+                },
+                new Company()
+                {
+                    Name = "ShinRa Electric Power Company",
+                    Email = "hello@shinra.com",
+                    LogoName = "shinra.jpg",
+                    Website = "https://shinra.com/"
+                },
+                new Company()
+                {
+                    Name = "LYNX Corp",
+                    Email = "contact@lynxcorp.com",
+                    LogoName = "lynx.jpg",
+                    Website = "https://lynx.corp.com/"
+                }
+            };
+
+            foreach (Company company in companies)
+            {
+                context.Companies.Add(company);
+            }
+
+            context.SaveChanges();
+
             var employees = new Employee[]
             {
                 new Employee()
@@ -49,38 +81,6 @@ namespace Reflection.Data
             foreach (Employee employee in employees)
             {
                 context.Employees.Add(employee);
-            }
-
-            context.SaveChanges();
-
-            var companies = new Company[]
-            {
-                new Company()
-                {
-                    Name = "Speedwagon Foundation",
-                    Email = "contact@speedwagon.org",
-                    Logo = "speedwagon-foundation.jpg",
-                    Website = "https://speedwagonfoundation.org/"
-                },
-                new Company()
-                {
-                    Name = "ShinRa Electric Power Company",
-                    Email = "hello@shinra.com",
-                    Logo = "shinra-co.jpg",
-                    Website = "https://shinra.com/"
-                },
-                new Company()
-                {
-                    Name = "LYNX Corp",
-                    Email = "contact@lynxcorp.com",
-                    Logo = "lynxcorp.jpg",
-                    Website = "https://lynx.corp.com/"
-                }
-            };
-
-            foreach (Company company in companies)
-            {
-                context.Companies.Add(company);
             }
 
             context.SaveChanges();

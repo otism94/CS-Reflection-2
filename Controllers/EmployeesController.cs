@@ -13,6 +13,7 @@ namespace Reflection.Controllers
     public class EmployeesController : Controller
     {
         private readonly Context _context;
+        private bool _disposed = false;
 
         public EmployeesController(Context context)
         {
@@ -42,7 +43,8 @@ namespace Reflection.Controllers
             ViewData["CurrentFilter"] = searchString;
 
             var employees = (from e in _context.Employees
-                            join c in _context.Companies on e.CompanyId equals c.CompanyId
+                            join c in _context.Companies on e.CompanyId equals c.CompanyId into ce
+                            from c in ce.DefaultIfEmpty()
                             select e).Include("Company");
 
             if (!String.IsNullOrEmpty(searchString))
@@ -68,7 +70,7 @@ namespace Reflection.Controllers
                     break;
             }
 
-            int pageSize = 3;
+            int pageSize = 10;
 
             return View(await PaginatedList<Employee>.CreateAsync(employees.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
@@ -231,6 +233,23 @@ namespace Reflection.Controllers
         private bool EmployeeExists(int id)
         {
             return _context.Employees.Any(e => e.EmployeeId == id);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                _context.Dispose();
+            }
+
+            _disposed = true;
+
+            base.Dispose(disposing);
         }
     }
 }

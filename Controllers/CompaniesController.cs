@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +16,13 @@ namespace Reflection.Controllers
     public class CompaniesController : Controller
     {
         private readonly Context _context;
+        private readonly IWebHostEnvironment _hostEnvironment;
+        private bool _disposed = false;
 
-        public CompaniesController(Context context)
+        public CompaniesController(Context context, IWebHostEnvironment hostEnvironment)
         {
             _context = context;
+            _hostEnvironment = hostEnvironment;
         }
 
         // GET: Companies
@@ -58,7 +64,7 @@ namespace Reflection.Controllers
                     break;
             }
 
-            int pageSize = 3;
+            int pageSize = 10;
             return View(await PaginatedList<Company>.CreateAsync(companies.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
@@ -92,12 +98,28 @@ namespace Reflection.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Email,Logo,Website")] Company company)
+        public async Task<IActionResult> Create([Bind("Name,Email,Website,LogoFile")] Company company)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
+                    if (company.LogoFile != null)
+                    {
+                        // Generate a unique filename for the logo.
+                        string wwwRootPath = _hostEnvironment.WebRootPath;
+                        string extension = Path.GetExtension(company.LogoFile.FileName);
+                        string filePrefix = Guid.NewGuid().ToString() + "_";
+                        string fileName = company.LogoName = filePrefix + DateTime.Now.ToString("yymmssfff") + extension;
+                        string filePath = Path.Combine(wwwRootPath + "/img/", fileName);
+
+                        // Save the file to wwwroot/img/.
+                        using (FileStream fileStream = new(filePath, FileMode.Create))
+                        {
+                            await company.LogoFile.CopyToAsync(fileStream);
+                        }
+                    }
+
                     _context.Add(company);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
@@ -133,7 +155,7 @@ namespace Reflection.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditPost(int? id)
+        public async Task<IActionResult> EditPost(int? id, Company company)
         {
             if (id == null)
             {
@@ -142,10 +164,36 @@ namespace Reflection.Controllers
 
             var companyToUpdate = await _context.Companies.FirstOrDefaultAsync(c => c.CompanyId == id);
 
+            if (ModelState.IsValid && company.LogoFile != null)
+            {
+                // Generate a unique filename for the logo.
+                string wwwRootPath = _hostEnvironment.WebRootPath;
+                string extension = Path.GetExtension(company.LogoFile.FileName);
+                string filePrefix = Guid.NewGuid().ToString() + "_";
+                string fileName = company.LogoName = filePrefix + DateTime.Now.ToString("yymmssfff") + extension;
+                string filePath = Path.Combine(wwwRootPath + "/img/", fileName);
+
+                // Save the file to wwwroot/img/.
+                using (FileStream fileStream = new(filePath, FileMode.Create))
+                {
+                    await company.LogoFile.CopyToAsync(fileStream);
+                }
+
+                // Delete the old logo.
+                var imagePath = Path.Combine(wwwRootPath, "img", companyToUpdate.LogoName);
+                if (System.IO.File.Exists(imagePath))
+                {
+                    System.IO.File.Delete(imagePath);
+                }
+
+                // Update the Company's FileName value.
+                companyToUpdate.LogoName = fileName;
+            }
+
             if (await TryUpdateModelAsync<Company>(
                     companyToUpdate,
                     "",
-                    c => c.Name, c => c.Email, c => c.Logo, c => c.Website))
+                    c => c.Name, c => c.Email, c => c.Website, c => c.LogoName))
             {
                 try
                 {
@@ -192,7 +240,7 @@ namespace Reflection.Controllers
         // POST: Companies/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id, string cascade)
         {
             var company = await _context.Companies.FindAsync(id);
             if (company == null)
@@ -202,19 +250,61 @@ namespace Reflection.Controllers
 
             try
             {
+                if (company.LogoName != null)
+                {
+                    var imagePath = Path.Combine(_hostEnvironment.WebRootPath, "img", company.LogoName);
+                    if (System.IO.File.Exists(imagePath))
+                    {
+                        System.IO.File.Delete(imagePath);
+                    }
+                }
+
+                var employees = _context.Employees.Where(e => e.CompanyId == id);
+                if (cascade == null)
+                {
+                    foreach (var employee in employees)
+                    {
+                        employee.CompanyId = null;
+                    }
+                }
+                else
+                {
+                    foreach (var employee in employees)
+                    {
+                        _context.Employees.Remove(employee);
+                    }
+                }
+
                 _context.Companies.Remove(company);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException)
             {
-                return RedirectToAction(nameof(Delete), new { id = id, saveChangesError = true });
+                return RedirectToAction(nameof(Delete), new { id, saveChangesError = true });
             }
         }
 
         private bool CompanyExists(int id)
         {
             return _context.Companies.Any(e => e.CompanyId == id);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                _context.Dispose();
+            }
+
+            _disposed = true;
+
+            base.Dispose(disposing);
         }
     }
 }

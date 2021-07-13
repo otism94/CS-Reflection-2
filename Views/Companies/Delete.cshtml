@@ -11,34 +11,46 @@
     <h4>Company</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Name)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Name)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Email)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Email)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Logo)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Logo)
-        </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Website)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Website)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.LogoName)
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.LogoName != null)
+            {
+                <div class="details-logo-box">
+                    <img src="@("~/img/" + Model.LogoName)" asp-append-version="true" class="img-logo" />
+                </div> 
+            }
+            else
+            {
+                <span>No logo provided.</span>
+            }
         </dd>
     </dl>
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="CompanyId" />
+        <input type="checkbox" asp-route-cascade="true" class="form-check-inline" id="cascade" name="cascade" value="cascade" />
+        <label class="form-check-label" for="cascade">Delete all employees at this company</label>
+        <br />
         <input type="submit" value="Delete" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>
     </form>

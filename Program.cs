@@ -15,7 +15,6 @@ namespace Reflection
     {
         public static void Main(string[] args)
         {
-            //CreateHostBuilder(args).Build().Run();
             var host = CreateHostBuilder(args).Build();
 
             CreateDbIfNotExists(host);
@@ -45,6 +44,7 @@ namespace Reflection
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    webBuilder.UseUrls("https://*:44331");
                     webBuilder.UseStartup<Startup>();
                 });
     }

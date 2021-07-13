@@ -23,16 +23,25 @@
             @Html.DisplayFor(model => model.Email)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Logo)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Logo)
-        </dd>
-        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Website)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Website)
+            <a href="@Model.Website" target="_blank">@Html.DisplayFor(model => model.Website)</a>
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.LogoName)
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.LogoName != null)
+            {
+                <div class="details-logo-box">
+                    <img src="@("~/img/" + Model.LogoName)" asp-append-version="true" class="img-logo" />
+                </div>
+            }
+            else
+            {
+                <span>No logo provided.</span>
+            }
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Employees)
@@ -47,19 +56,18 @@
                 </tr>
                 @foreach (var item in Model.Employees)
                 {
-                    <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.FullName)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Email)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Phone)
-                        </td>
-                        <td><a asp-controller="Employees" asp-action="Details" asp-route-id="@item.EmployeeId">Details</a></td>
-                    </tr>
-                }
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.FullName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Email)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Phone)
+        </td>
+        <td><a asp-controller="Employees" asp-action="Details" asp-route-id="@item.EmployeeId">Details</a></td>
+    </tr>}
             </table>
         </dd>
     </dl>
