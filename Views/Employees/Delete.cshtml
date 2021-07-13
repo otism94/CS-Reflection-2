@@ -43,9 +43,13 @@
         </dd class>
     </dl>
     
-    <form asp-action="Delete">
+    <form asp-action="Delete" id="deleteForm">
         <input type="hidden" asp-for="EmployeeId" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <input type="submit" value="Delete" id="btnConfirmDelete" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>
     </form>
+</div>
+
+<div id="confirmDeleteDialogue" title="Confirm Deletion">
+    <p>Are you sure you want to delete <strong>@Html.DisplayFor(model => model.FullName)</strong>?</p>
 </div>

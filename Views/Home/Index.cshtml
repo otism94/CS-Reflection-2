@@ -2,7 +2,33 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-center mb-4">
+    <h1 class="display-4">C# Reflection</h1>
+</div>
+
+<div class="card-deck">
+    <div class="card">
+        <div class="card-body">
+            <div class="card-icon">
+                <i class="far fa-building"></i>
+            </div>
+            <h3 class="card-title text-center">Companies</h3>
+            <ul class="card-list list-group">
+                <li><a asp-controller="Companies" asp-action="Index" class="list-group-item">View all companies &rightarrow;</a></li>
+                <li><a asp-controller="Companies" asp-action="Create" class="list-group-item">Add a new company &rightarrow;</i></a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="card-icon">
+                <i class="far fa-id-card"></i>
+            </div>
+            <h3 class="card-title text-center">Employees</h3>
+            <ul class="card-list list-group">
+                <li><a asp-controller="Employees" asp-action="Index" class="list-group-item">View all employees &rightarrow;</a></li>
+                <li><a asp-controller="Employees" asp-action="Create" class="list-group-item">Add a new employee &rightarrow;</i></a></li>
+            </ul>
+        </div>
+    </div>
 </div>

@@ -18,7 +18,7 @@ namespace Reflection.Controllers
         private readonly Context _context;
         private readonly IWebHostEnvironment _hostEnvironment;
         private bool _disposed = false;
-
+        
         public CompaniesController(Context context, IWebHostEnvironment hostEnvironment)
         {
             _context = context;
@@ -34,6 +34,7 @@ namespace Reflection.Controllers
         {
             ViewData["CurrentSort"] = sortOrder;
             ViewData["NameSortParam"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["EmployeesSortParam"] = sortOrder == "Employees" ? "employees_desc" : "Employees";
 
             if (searchString != null)
             {
@@ -46,8 +47,11 @@ namespace Reflection.Controllers
 
             ViewData["CurrentFilter"] = searchString;
 
-            var companies = from c in _context.Companies
-                             select c;
+            //var companies = from c in _context.Companies
+            //                 select c;
+            var companies = _context.Companies
+                .Include(c => c.Employees)
+                .Select(c => c);
 
             if (!String.IsNullOrEmpty(searchString))
             {
@@ -58,6 +62,12 @@ namespace Reflection.Controllers
             {
                 case "name_desc":
                     companies = companies.OrderByDescending(c => c.Name);
+                    break;
+                case "Employees":
+                    companies = companies.OrderBy(c => c.Employees.Count);
+                    break;
+                case "employees_desc":
+                    companies = companies.OrderByDescending(c => c.Employees.Count);
                     break;
                 default:
                     companies = companies.OrderBy(c => c.Name);
@@ -78,7 +88,7 @@ namespace Reflection.Controllers
 
             var company = await _context.Companies
                 .Include(c => c.Employees)
-                .FirstOrDefaultAsync(m => m.CompanyId == id);
+                .FirstOrDefaultAsync(c => c.CompanyId == id);
             if (company == null)
             {
                 return NotFound();

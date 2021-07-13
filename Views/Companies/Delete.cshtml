@@ -66,7 +66,7 @@
         <ul>
             @foreach (var item in Model.Employees)
             {
-                <li>@Html.DisplayFor(modelItem => item.FullName)</li>
+                <li><strong>@Html.DisplayFor(modelItem => item.FullName)</strong></li>
             }
         </ul>
     }
@@ -76,7 +76,7 @@
         <ul>
             @foreach (var item in Model.Employees)
             {
-                <li>@Html.DisplayFor(modelItem => item.FullName)</li>
+                <li><strong>@Html.DisplayFor(modelItem => item.FullName)</strong></li>
             }
         </ul>
     }
@@ -86,7 +86,7 @@
         <ul>
             @for(int i = 0; i < 5; i++)
             {
-                <li>@Html.DisplayFor(modelItem => Model.Employees.ElementAt(i).FullName)</li>
+                <li><strong>@Html.DisplayFor(modelItem => Model.Employees.ElementAt(i).FullName)</strong></li>
             }
             <li>+ @(employeesCount - 5) more</li>
         </ul>
