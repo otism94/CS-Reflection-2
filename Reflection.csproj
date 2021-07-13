@@ -32,6 +32,7 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\img\" />
+    <Folder Include="wwwroot\lib\jquery-ui\" />
   </ItemGroup>
 
 </Project>

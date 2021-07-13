@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Delete";
+    int employeesCount = Model.Employees.Count;
 }
 
 <h1>Delete</h1>
@@ -46,12 +47,48 @@
         </dd>
     </dl>
     
-    <form asp-action="Delete">
+    <form asp-action="Delete" id="deleteForm">
         <input type="hidden" asp-for="CompanyId" />
-        <input type="checkbox" asp-route-cascade="true" class="form-check-inline" id="cascade" name="cascade" value="cascade" />
-        <label class="form-check-label" for="cascade">Delete all employees at this company</label>
-        <br />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <div class="form-checkbox-group">
+            <input type="checkbox" class="form-check-input" id="deleteEmployees" name="deleteEmployees" value="true" @(employeesCount == 0 ? "disabled" : "")/>
+            <label class="form-check-label" for="deleteEmployees">Delete all employees at this company (@employeesCount)</label>
+        </div>
+        <input type="submit" value="Delete" id="btnConfirmDelete" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>
     </form>
+</div>
+
+<div id="confirmDeleteDialogue" title="Confirm Deletion">
+    <p>Are you sure you want to delete <strong>@Html.DisplayFor(model => model.Name)</strong>?</p>
+    @if (employeesCount == 1)
+    {
+        <p>The following employee will be affected:</p>
+        <ul>
+            @foreach (var item in Model.Employees)
+            {
+                <li>@Html.DisplayFor(modelItem => item.FullName)</li>
+            }
+        </ul>
+    }
+    else if (employeesCount > 1 && employeesCount <= 5)
+    {
+        <p>The following employees will be affected:</p>
+        <ul>
+            @foreach (var item in Model.Employees)
+            {
+                <li>@Html.DisplayFor(modelItem => item.FullName)</li>
+            }
+        </ul>
+    }
+    else if (employeesCount > 5)
+    {
+        <p>The following employees will be affected:</p>
+        <ul>
+            @for(int i = 0; i < 5; i++)
+            {
+                <li>@Html.DisplayFor(modelItem => Model.Employees.ElementAt(i).FullName)</li>
+            }
+            <li>+ @(employeesCount - 5) more</li>
+        </ul>
+    }
 </div>

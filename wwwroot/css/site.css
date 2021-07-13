@@ -87,3 +87,20 @@ body {
 .img-logo {
     height: 100%;
 }
+
+/* Additional form styling
+    -------------------------------------------------- */
+.ui-widget {
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+}
+
+.form-checkbox-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+    margin-left: 20px;
+}
+
+.form-checkbox-group label {
+    margin-left: 10px;
+}

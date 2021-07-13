@@ -220,6 +220,7 @@ namespace Reflection.Controllers
             }
 
             var company = await _context.Companies
+                .Include(c => c.Employees)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.CompanyId == id);
             if (company == null)
@@ -240,7 +241,7 @@ namespace Reflection.Controllers
         // POST: Companies/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id, string cascade)
+        public async Task<IActionResult> DeleteConfirmed(int id, string deleteEmployees)
         {
             var company = await _context.Companies.FindAsync(id);
             if (company == null)
@@ -260,18 +261,19 @@ namespace Reflection.Controllers
                 }
 
                 var employees = _context.Employees.Where(e => e.CompanyId == id);
-                if (cascade == null)
+                if (deleteEmployees != null)
                 {
+                    
                     foreach (var employee in employees)
                     {
-                        employee.CompanyId = null;
+                        _context.Employees.Remove(employee);
                     }
                 }
                 else
                 {
                     foreach (var employee in employees)
                     {
-                        _context.Employees.Remove(employee);
+                        employee.CompanyId = null;
                     }
                 }
 
