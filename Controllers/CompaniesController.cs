@@ -17,6 +17,7 @@ namespace Reflection.Controllers
     {
         private readonly Context _context;
         private readonly IWebHostEnvironment _hostEnvironment;
+        private bool _disposed = false;
 
         public CompaniesController(Context context, IWebHostEnvironment hostEnvironment)
         {
@@ -63,7 +64,7 @@ namespace Reflection.Controllers
                     break;
             }
 
-            int pageSize = 3;
+            int pageSize = 10;
             return View(await PaginatedList<Company>.CreateAsync(companies.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
@@ -105,18 +106,15 @@ namespace Reflection.Controllers
                 {
                     if (company.LogoFile != null)
                     {
+                        // Generate a unique filename for the logo.
                         string wwwRootPath = _hostEnvironment.WebRootPath;
-                        string fileName = Path.GetFileNameWithoutExtension(company.LogoFile.FileName);
                         string extension = Path.GetExtension(company.LogoFile.FileName);
+                        string filePrefix = Guid.NewGuid().ToString() + "_";
+                        string fileName = company.LogoName = filePrefix + DateTime.Now.ToString("yymmssfff") + extension;
+                        string filePath = Path.Combine(wwwRootPath + "/img/", fileName);
 
-                        Random random = new Random();
-                        string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-                        string filePrefix = new(Enumerable.Repeat(chars, 10)
-                            .Select(c => c[random.Next(c.Length)]).ToArray());
-
-                        company.LogoName = fileName = filePrefix + DateTime.Now.ToString("yymmssfff") + extension;
-                        string path = Path.Combine(wwwRootPath + "/img/", fileName);
-                        using (var fileStream = new FileStream(path, FileMode.Create))
+                        // Save the file to wwwroot/img/.
+                        using (FileStream fileStream = new(filePath, FileMode.Create))
                         {
                             await company.LogoFile.CopyToAsync(fileStream);
                         }
@@ -157,7 +155,7 @@ namespace Reflection.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditPost(int? id)
+        public async Task<IActionResult> EditPost(int? id, Company company)
         {
             if (id == null)
             {
@@ -165,6 +163,32 @@ namespace Reflection.Controllers
             }
 
             var companyToUpdate = await _context.Companies.FirstOrDefaultAsync(c => c.CompanyId == id);
+
+            if (ModelState.IsValid && company.LogoFile != null)
+            {
+                // Generate a unique filename for the logo.
+                string wwwRootPath = _hostEnvironment.WebRootPath;
+                string extension = Path.GetExtension(company.LogoFile.FileName);
+                string filePrefix = Guid.NewGuid().ToString() + "_";
+                string fileName = company.LogoName = filePrefix + DateTime.Now.ToString("yymmssfff") + extension;
+                string filePath = Path.Combine(wwwRootPath + "/img/", fileName);
+
+                // Save the file to wwwroot/img/.
+                using (FileStream fileStream = new(filePath, FileMode.Create))
+                {
+                    await company.LogoFile.CopyToAsync(fileStream);
+                }
+
+                // Delete the old logo.
+                var imagePath = Path.Combine(wwwRootPath, "img", companyToUpdate.LogoName);
+                if (System.IO.File.Exists(imagePath))
+                {
+                    System.IO.File.Delete(imagePath);
+                }
+
+                // Update the Company's FileName value.
+                companyToUpdate.LogoName = fileName;
+            }
 
             if (await TryUpdateModelAsync<Company>(
                     companyToUpdate,
@@ -216,7 +240,7 @@ namespace Reflection.Controllers
         // POST: Companies/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id, string cascade)
         {
             var company = await _context.Companies.FindAsync(id);
             if (company == null)
@@ -226,10 +250,29 @@ namespace Reflection.Controllers
 
             try
             {
-                var imagePath = Path.Combine(_hostEnvironment.WebRootPath, "img", company.LogoName);
-                if (System.IO.File.Exists(imagePath))
+                if (company.LogoName != null)
                 {
-                    System.IO.File.Delete(imagePath);
+                    var imagePath = Path.Combine(_hostEnvironment.WebRootPath, "img", company.LogoName);
+                    if (System.IO.File.Exists(imagePath))
+                    {
+                        System.IO.File.Delete(imagePath);
+                    }
+                }
+
+                var employees = _context.Employees.Where(e => e.CompanyId == id);
+                if (cascade == null)
+                {
+                    foreach (var employee in employees)
+                    {
+                        employee.CompanyId = null;
+                    }
+                }
+                else
+                {
+                    foreach (var employee in employees)
+                    {
+                        _context.Employees.Remove(employee);
+                    }
                 }
 
                 _context.Companies.Remove(company);
@@ -245,6 +288,23 @@ namespace Reflection.Controllers
         private bool CompanyExists(int id)
         {
             return _context.Companies.Any(e => e.CompanyId == id);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                _context.Dispose();
+            }
+
+            _disposed = true;
+
+            base.Dispose(disposing);
         }
     }
 }

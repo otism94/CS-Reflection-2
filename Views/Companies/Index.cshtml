@@ -33,9 +33,12 @@
         {
         <tr>
             <td>
-                <div class="index-logo-box">
-                    <img src="@("~/img/" + item.LogoName)" asp-append-version="true" class="img-logo" />
-                </div>
+                @if (item.LogoName != null)
+                {
+                    <div class="index-logo-box">
+                        <img src="@("~/img/" + item.LogoName)" asp-append-version="true" class="img-logo" />
+                    </div>
+                }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
