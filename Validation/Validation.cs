@@ -24,18 +24,25 @@ namespace Reflection.Validation
             object value, 
             ValidationContext validationContext)
         {
-            var file = value as IFormFile;
-            if (file != null)
+            try
             {
-                using (var image = Image.FromStream(file.OpenReadStream()))
+                var file = value as IFormFile;
+                if (file != null)
                 {
-                    if (image.Width < _minDimensions && image.Height < _minDimensions)
+                    using (var image = Image.FromStream(file.OpenReadStream()))
                     {
-                        return new ValidationResult(GetErrorMessage());
+                        if (image.Width < _minDimensions && image.Height < _minDimensions)
+                        {
+                            return new ValidationResult(GetErrorMessage());
+                        }
                     }
                 }
+                return ValidationResult.Success;
             }
-            return ValidationResult.Success;
+            catch (Exception)
+            {
+                return new ValidationResult("Error validating file. Please try again.");
+            }
         }
 
         public string GetErrorMessage()
@@ -57,20 +64,61 @@ namespace Reflection.Validation
             object value,
             ValidationContext validationContext)
         {
-            var file = value as IFormFile;
-            if (file != null)
+            try
             {
-                if (file.Length > _maxFileSize)
+                var file = value as IFormFile;
+                if (file != null)
                 {
-                    return new ValidationResult(GetErrorMessage());
+                    if (file.Length > _maxFileSize)
+                    {
+                        return new ValidationResult(GetErrorMessage());
+                    }
                 }
+                return ValidationResult.Success;
             }
-            return ValidationResult.Success;
+            catch (Exception)
+            {
+                return new ValidationResult("Error validating file. Please try again.");
+            }
         }
 
         public string GetErrorMessage()
         {
             return $"Maximum allowed file size is {(double)_maxFileSize / 1000000}MB.";
+        }
+    }
+
+    public class ImageExtensions : ValidationAttribute
+    {
+        private readonly string[] _validExtensions = { ".png", ".jpg", ".jpeg" };
+
+        protected override ValidationResult IsValid(
+            object value,
+            ValidationContext validationContext)
+        {
+            try
+            {
+                var file = value as IFormFile;
+                if (file != null)
+                {
+                    string fileExtension = Path.GetExtension(file.FileName);
+                    if (!_validExtensions.Contains(fileExtension))
+                    {
+                        return new ValidationResult(GetErrorMessage());
+                    }
+                }
+                return ValidationResult.Success;
+            }
+            catch (Exception)
+            {
+                return new ValidationResult("Error validating file. Please try again.");
+            }
+            
+        }
+
+        public string GetErrorMessage()
+        {
+            return "Invalid image format. Please upload a .png, .jpg, or .jpeg file.";
         }
     }
 }

@@ -132,6 +132,7 @@ namespace Reflection.Controllers
 
                     _context.Add(company);
                     await _context.SaveChangesAsync();
+                    TempData["MessageSuccess"] = $"<strong>{company.Name}</strong> has been added.";
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -208,6 +209,7 @@ namespace Reflection.Controllers
                 try
                 {
                     await _context.SaveChangesAsync();
+                    TempData["MessageSuccess"] = $"<strong>{company.Name}</strong> has been updated.";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateException)
@@ -289,10 +291,12 @@ namespace Reflection.Controllers
 
                 _context.Companies.Remove(company);
                 await _context.SaveChangesAsync();
+                TempData["MessageSuccess"] = $"<strong>{company.Name}</strong> has been deleted.";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException)
             {
+                TempData["MessageFailure"] = "Failed to delete entry. Please try again.";
                 return RedirectToAction(nameof(Delete), new { id, saveChangesError = true });
             }
         }

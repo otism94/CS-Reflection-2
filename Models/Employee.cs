@@ -7,23 +7,23 @@ namespace Reflection.Models
     {
         public int EmployeeId { get; set; }
 
-        [Required]
-        [StringLength(50)]
+        [Required(ErrorMessage = "This field is required.")]
+        [StringLength(50, ErrorMessage = "First name must be 50 characters or less.")]
         [DisplayName("First Name")]
         public string FirstName { get; set; }
 
-        [Required]
-        [StringLength(50)]
+        [Required(ErrorMessage = "This field is required.")]
+        [StringLength(50, ErrorMessage = "Last name must be 50 characters or less.")]
         [DisplayName("Last Name")]
         public string LastName { get; set; }
 
-        [EmailAddress]
-        [StringLength(100)]
+        [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
+        [StringLength(100, ErrorMessage = "Email address must be 100 characters or less.")]
         public string Email { get; set; }
 
-        [Phone]
-        [StringLength(20)]
-        [MinLength(11)]
+        [Phone(ErrorMessage = "Please enter a valid phone number.")]
+        [StringLength(30, ErrorMessage = "Phone number must be 30 characters or less.")]
+        [MinLength(11, ErrorMessage = "Phone number must be at least 11 characters long.")]
         public string Phone { get; set; }
 
         [DisplayName("Name")]

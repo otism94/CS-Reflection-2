@@ -275,7 +275,7 @@ $.extend( $.validator, {
 		rules: {},
 		errorClass: "error",
 		pendingClass: "pending",
-		validClass: "valid",
+		validClass: "is-valid",
 		errorElement: "label",
 		focusCleanup: false,
 		focusInvalid: true,

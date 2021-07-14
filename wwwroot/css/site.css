@@ -24,6 +24,10 @@ a {
   border-color: #1861ac;
 }
 
+.nav-selected {
+    border-bottom: 5px solid #212529;
+}
+
 /* Sticky footer styles
 -------------------------------------------------- */
 html {
@@ -72,6 +76,10 @@ body {
 
 /* Home view styles
     -------------------------------------------------- */
+.home-title {
+    margin: 100px 0;
+}
+
 .card-icon {
     display: flex;
     justify-content: center;
@@ -111,6 +119,42 @@ body {
     text-decoration: none;
 }
 
+/* Index styles 
+    -------------------------------------------------- */
+.model-heading {
+    margin-bottom: 30px;
+}
+
+.btn-add {
+    margin-top: -5px;
+    margin-right: 20px;
+}
+
+.search-container-container {
+    display: inline-block;
+}
+
+.search-container {
+    display: inline-flex;
+    align-items: center;
+    height: 38px;
+    margin-bottom: 20px;
+}
+
+.searchbar {
+    display: inline-block;
+    width: auto;
+    margin-right: 5px;
+}
+
+.link-dark {
+    color: #212529;
+}
+
+.link-dark:hover, .link-dark:focus {
+    color: #1a1e21;
+}
+
 /* Logo image styles
     -------------------------------------------------- */
 .index-logo-box {
@@ -131,11 +175,21 @@ body {
 
 /* Additional form styling
     -------------------------------------------------- */
-.ui-widget {
-    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+.control-label {
+    font-weight: 600;
 }
 
-.ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
+.label-required::after {
+    content: "*";
+    color: #DC3545;
+}
+
+.logo-upload-reqs {
+    font-size: .75rem;
+    font-style: italic;
+}
+
+.ui-widget, .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
     font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
 }
 

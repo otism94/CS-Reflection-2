@@ -14,16 +14,17 @@ namespace Reflection.Models
     {
         public int CompanyId { get; set; }
 
-        [Required]
-        [StringLength(100)]
+        [Required(ErrorMessage = "This field is required.")]
+        [StringLength(100, ErrorMessage = "Company name must be 100 characters or less.")]
+        [MinLength(2, ErrorMessage = "Company name must be at least 2 characters long.")]
         public string Name { get; set; }
 
-        [EmailAddress]
-        [StringLength(100)]
+        [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
+        [StringLength(100, ErrorMessage = "Email address must be 100 characters or less.")]
         public string Email { get; set; }
 
-        [Url]
-        [StringLength(100)]
+        [Url(ErrorMessage = "Please enter a valid URL (with http:// or https:// included).")]
+        [StringLength(100, ErrorMessage = "Website must be 100 characters or less.")]
         public string Website { get; set; }
 
         [DisplayName("Logo")]
@@ -33,6 +34,7 @@ namespace Reflection.Models
         [DisplayName("Logo")]
         [MaxFileSize(5000000)]
         [MinDimensions(100)]
+        [ImageExtensions]
         public IFormFile LogoFile { get; set; }
 
         public ICollection<Employee> Employees { get; set; }
