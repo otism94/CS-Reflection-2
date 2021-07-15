@@ -1,12 +1,17 @@
 ﻿@model Reflection.Models.Company
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit " + Model.Name;
 }
 
-<h1>Edit</h1>
-
-<h4>Company</h4>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-action="Index">Companies</a></li>
+        <li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@Model.CompanyId">@Html.DisplayFor(model => model.Name)</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Edit</li>
+    </ol>
+</nav>
+<h1 class="model-heading">Editing @Html.DisplayFor(model => model.Name)</h1>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -38,10 +43,6 @@
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {

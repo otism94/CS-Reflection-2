@@ -1,15 +1,21 @@
 ﻿@model Reflection.Models.Company
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Delete " + Model.Name;
     int employeesCount = Model.Employees.Count;
 }
 
-<h1>Delete</h1>
-
-<h3>Are you sure you want to delete this?</h3>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-action="Index">Companies</a></li>
+        <li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@Model.CompanyId">@Html.DisplayFor(model => model.Name)</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Delete</li>
+    </ol>
+</nav>
+<p class="text-danger">@ViewData["ErrorMessage"]</p>
+<h1 class="model-heading">Delete @Model.Name</h1>
+<h4>Please review these details before deleting:</h4>
 <div>
-    <h4>Company</h4>
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
@@ -53,8 +59,7 @@
             <input type="checkbox" class="form-check-input" id="deleteEmployees" name="deleteEmployees" value="true" @(employeesCount == 0 ? "disabled" : "")/>
             <label class="form-check-label" for="deleteEmployees">Delete all employees at this company (@employeesCount)</label>
         </div>
-        <input type="submit" value="Delete" id="btnConfirmDelete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
+        <input type="submit" value="Delete" id="btnConfirmDelete" class="btn btn-danger" />
     </form>
 </div>
 

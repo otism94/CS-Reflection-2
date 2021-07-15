@@ -24,10 +24,6 @@ a {
   border-color: #1861ac;
 }
 
-.nav-selected {
-    border-bottom: 5px solid #212529;
-}
-
 /* Sticky footer styles
 -------------------------------------------------- */
 html {
@@ -127,7 +123,7 @@ body {
 
 .btn-add {
     margin-top: -5px;
-    margin-right: 20px;
+    margin-right: 8px;
 }
 
 .search-container-container {
@@ -144,7 +140,13 @@ body {
 .searchbar {
     display: inline-block;
     width: auto;
-    margin-right: 5px;
+    margin-right: 2px;
+}
+
+.table-head-constrained {
+    max-width: 60px;
+    text-wrap: none;
+    white-space: nowrap;
 }
 
 .link-dark {
@@ -155,6 +157,38 @@ body {
     color: #1a1e21;
 }
 
+@media (max-width: 767px) {
+    .index-edit-delete-group {
+        display: flex;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .index-edit-delete-group .btn {
+        margin-bottom: 5px;
+    }
+
+    .index-edit-delete-group .btn:first-child {
+        margin-right: 5px;
+    }
+
+    .index-edit-delete-group .btn:last-child {
+        padding-right: calc(.75rem + .875px);
+        padding-left: calc(.75rem + .875px);
+    }
+}
+
+.employee-company-cell {
+    display: flex;
+    align-items: center;
+}
+
+@media (max-width: 575px) {
+    .crud-action-text {
+        display: none;
+    }
+}
+
 /* Logo image styles
     -------------------------------------------------- */
 .index-logo-box {
@@ -162,6 +196,21 @@ body {
     justify-content: center;
     width: 50px;
     height: 50px;
+}
+
+@media (max-width: 575px) {
+    .index-logo-box {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+.index-logo-box-inline {
+    display: inline-flex;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    margin-right: 5px;
 }
 
 .details-logo-box {

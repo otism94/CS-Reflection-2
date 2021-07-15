@@ -1,28 +1,32 @@
 ﻿@model PaginatedList<Reflection.Models.Company>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Companies";
 }
 
-<h1 class="model-heading">Companies</h1>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item active" aria-current="page">Companies</li>
+    </ol>
+</nav>
 @if (TempData["MessageSuccess"] != null)
 {
-<div class="alert alert-success alert-dismissible" role="alert">
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-    </button>
-    @Html.Raw(TempData["MessageSuccess"])
-</div>
+    <div class="alert alert-success alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        @Html.Raw(TempData["MessageSuccess"])
+    </div>
 }
-<a asp-action="Create" title="Add" class="btn btn-success btn-add"><i class="fas fa-plus-circle"></i> Add</a>
+<h1 class="model-heading">Companies List</h1>
+<a asp-action="Create" title="Add" class="btn btn-success btn-add"><i class="fas fa-plus-circle"></i><span class="crud-action-text"> Add</span></a>
 <form asp-action="Index" method="get" class="search-container-container">
     <div class="form-actions no-color search-container">
         <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" class="form-control searchbar" />
         <input type="submit" value="Search" class="btn btn-primary" title="Search" />
-            
         @if (ViewData["CurrentFilter"] != null)
         {
-            <a asp-action="Index">Back to Full List</a>
+            <a asp-action="Index"> Back to Full List</a>
         }
     </div>
 </form>
@@ -33,10 +37,22 @@
                 Logo
             </th>
             <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParam"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="link-dark" title="Sort by name"><i class="fas fa-sort"></i> Name</a>
+                <a asp-action="Index"
+                   asp-route-sortOrder="@ViewData["NameSortParam"]"
+                   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                   class="link-dark"
+                   title="Sort by name">
+                    <i class="fas fa-sort"></i> Name
+                </a>
             </th>
-            <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["EmployeesSortParam"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="link-dark" title="Sort by employee count"><i class="fas fa-sort"></i> Employees</a>
+            <th class="table-head-constrained">
+                <a asp-action="Index"
+                   asp-route-sortOrder="@ViewData["EmployeesSortParam"]"
+                   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                   class="link-dark"
+                   title="Sort by employee count">
+                    <i class="fas fa-sort"></i> Employees
+                </a>
             </th>
             <th></th>
         </tr>
@@ -48,20 +64,39 @@
                 <td>
                     @if (item.LogoName != null)
                     {
-                        <a asp-action="Details" asp-route-id="@item.CompanyId" class="index-logo-box" title="View details for @item.Name">
+                        <a asp-action="Details"
+                           asp-route-id="@item.CompanyId"
+                           class="index-logo-box"
+                           title="View details for @item.Name">
                             <img src="@("~/img/" + item.LogoName)" asp-append-version="true" class="img-logo" />
                         </a>
                     }
                 </td>
                 <td>
-                    <a asp-action="Details" asp-route-id="@item.CompanyId" title="View details for @item.Name">@Html.DisplayFor(modelItem => item.Name)</a>
+                    <a asp-action="Details"
+                       asp-route-id="@item.CompanyId"
+                       title="View details for @item.Name">
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </a>
                 </td>
                 <td>
                     @item.Employees.Count
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.CompanyId" class="btn btn-outline-secondary" title="Edit"><i class="fas fa-edit"></i> Edit</a>
-                    <a asp-action="Delete" asp-route-id="@item.CompanyId" class="btn btn-danger" title="Delete"><i class="fas fa-trash-alt"></i> Delete</a>
+                    <div class="index-edit-delete-group">
+                        <a asp-action="Edit"
+                           asp-route-id="@item.CompanyId"
+                           class="btn btn-outline-secondary"
+                           title="Edit">
+                            <i class="fas fa-pen-alt"></i><span class="crud-action-text"> Edit</span>
+                        </a>
+                        <a asp-action="Delete"
+                           asp-route-id="@item.CompanyId"
+                           class="btn btn-danger"
+                           title="Delete">
+                            <i class="fas fa-trash-alt"></i><span class="crud-action-text"> Delete</span>
+                        </a>
+                    </div>
                 </td>
             </tr>
         }

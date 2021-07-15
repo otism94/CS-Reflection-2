@@ -1,13 +1,17 @@
 ﻿@model Reflection.Models.Employee
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = Model.FirstName + " " + Model.LastName;
 }
 
-<h1>Details</h1>
-
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-action="Index">Employees</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@Html.DisplayFor(model => model.FullName)</li>
+    </ol>
+</nav>
+<h1 class="model-heading">Details for @Html.DisplayFor(model => model.FirstName) @Html.DisplayFor(model => model.LastName)</h1>
 <div>
-    <h4>Employee</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -40,17 +44,37 @@
         <dd class="col-sm-10">
             @if (Model.CompanyId != null)
             {
-                <a asp-controller="Companies" asp-action="Details" asp-route-id="@Model.Company.CompanyId">@Html.DisplayFor(model => model.Company.Name)</a>
+            <a asp-controller="Companies" 
+               asp-action="Details" 
+               asp-route-id="@Model.Company.CompanyId"
+               class="employee-company-cell">
+                @if (Model.Company.LogoName != null)
+                {
+                    <div class="index-logo-box-inline">
+                        <img src="@("~/img/" + Model.Company.LogoName)" asp-append-version="true" class="img-logo" />
+                    </div>
+                }
+                @Html.DisplayFor(model => model.Company.Name)
+            </a>
             }
             else
             {
-                <span>None listed</span>
+                <span>None listed.</span>
             }
         </dd>
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.EmployeeId">Edit</a> |
-    <a asp-action="Delete" asp-route-id="@Model.EmployeeId" class="text-danger">Delete</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Edit"
+       asp-route-id="@Model.EmployeeId"
+       class="btn btn-outline-secondary"
+       title="Edit">
+        <i class="fas fa-pen-alt"></i> Edit
+    </a>
+    <a asp-action="Delete"
+       asp-route-id="@Model.EmployeeId"
+       class="btn btn-danger"
+       title="Delete">
+        <i class="fas fa-trash-alt"></i> Delete
+    </a>
 </div>

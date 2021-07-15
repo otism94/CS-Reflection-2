@@ -1,13 +1,17 @@
 ﻿@model Reflection.Models.Company
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = Model.Name;
 }
 
-<h1>Details</h1>
-
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-action="Index">Companies</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@Html.DisplayFor(model => model.Name)</li>
+    </ol>
+</nav>
+<h1 class="model-heading">Details for @Html.DisplayFor(model => model.Name)</h1>
 <div>
-    <h4>Company</h4>
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
@@ -52,28 +56,40 @@
                     <th>Name</th>
                     <th>Email</th>
                     <th>Phone</th>
-                    <th></th>
                 </tr>
                 @foreach (var item in Model.Employees)
                 {
     <tr>
         <td>
-            @Html.DisplayFor(modelItem => item.FullName)
-        </td>
+            <a asp-controller="Employees" 
+               asp-action="Details" 
+               asp-route-id="@item.EmployeeId"
+               title="View details for @Html.DisplayFor(modelItem => item.FirstName) @Html.DisplayFor(modelItem => item.LastName)">
+                @Html.DisplayFor(modelItem => item.FullName)
+            </a>
+</td>
         <td>
             @Html.DisplayFor(modelItem => item.Email)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Phone)
         </td>
-        <td><a asp-controller="Employees" asp-action="Details" asp-route-id="@item.EmployeeId">Details</a></td>
     </tr>}
             </table>
         </dd>
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.CompanyId">Edit</a> |
-    <a asp-action="Delete" asp-route-id="@Model.CompanyId" class="text-danger">Delete</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Edit"
+       asp-route-id="@Model.CompanyId"
+       class="btn btn-outline-secondary"
+       title="Edit">
+        <i class="fas fa-pen-alt"></i> Edit
+    </a>
+    <a asp-action="Delete"
+       asp-route-id="@Model.CompanyId"
+       class="btn btn-danger"
+       title="Delete">
+        <i class="fas fa-trash-alt"></i> Delete
+    </a>
 </div>
