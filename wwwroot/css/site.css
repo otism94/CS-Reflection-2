@@ -157,6 +157,15 @@ body {
     color: #1a1e21;
 }
 
+th {
+    text-wrap: none;
+    white-space: nowrap;
+}
+
+td {
+    word-break: break-word;
+}
+
 @media (max-width: 767px) {
     .index-edit-delete-group {
         display: flex;
@@ -224,6 +233,10 @@ body {
 
 /* Additional form styling
     -------------------------------------------------- */
+.no-info {
+    font-style: italic;
+}
+
 .control-label {
     font-weight: 600;
 }

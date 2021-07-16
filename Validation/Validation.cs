@@ -11,6 +11,11 @@ using System.Threading.Tasks;
 
 namespace Reflection.Validation
 {
+    public class UrlOptionalPrefix : ValidationAttribute
+    {
+
+    }
+
     public class MinDimensions : ValidationAttribute
     {
         private readonly int _minDimensions;

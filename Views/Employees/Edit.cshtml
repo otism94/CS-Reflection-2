@@ -7,6 +7,14 @@
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-action="Index">Employees</a></li>
+        @if (Model.CompanyId == null)
+        {
+            <li class="breadcrumb-item"><a asp-action="Unassigned">Unassigned</a></li>
+        }
+        else
+        {
+            <li class="breadcrumb-item"><a asp-controller="Companies" asp-action="Details" asp-route-id="@Model.CompanyId">@Html.DisplayFor(model => model.Company.Name)</a></li>
+        }
         <li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@Model.EmployeeId">@Html.DisplayFor(model => model.FullName)</a></li>
         <li class="breadcrumb-item active" aria-current="page">Edit</li>
     </ol>

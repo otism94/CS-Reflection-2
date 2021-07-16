@@ -1,12 +1,13 @@
-﻿@model PaginatedList<Reflection.Models.Company>
+﻿@model PaginatedList<Reflection.Models.Employee>
 
 @{
-    ViewData["Title"] = "Companies";
+    ViewData["Title"] = "Unassigned Employees";
 }
 
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item active" aria-current="page">Companies</li>
+        <li class="breadcrumb-item"><a asp-action="Index">Employees</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Unassigned</li>
     </ol>
 </nav>
 
@@ -20,17 +21,15 @@
     </div>
 }
 
-<h1 class="model-heading">Companies List</h1>
+<h1 class="model-heading">Unassigned Employees</h1>
 
-<a asp-action="Create" title="Add" class="btn btn-success btn-add"><i class="fas fa-plus-circle"></i><span class="crud-action-text"> Add</span></a>
-
-<form asp-action="Index" method="get" class="search-container-container">
+<form asp-action="Unassigned" method="get" class="search-container-container">
     <div class="form-actions no-color search-container">
         <input type="text" name="t" value="@ViewData["CurrentFilter"]" class="form-control searchbar" />
         <input type="submit" value="Search" class="btn btn-primary" title="Search" />
         @if (ViewData["CurrentFilter"] != null)
         {
-            <a asp-action="Index"> Back to Full List</a>
+            <a asp-action="Unassigned"> Back to Full List</a>
         }
     </div>
 </form>
@@ -39,10 +38,7 @@
     <thead>
         <tr>
             <th>
-                Logo
-            </th>
-            <th>
-                <a asp-action="Index"
+                <a asp-action="Unassigned"
                    asp-route-s="@ViewData["NameSortParam"]"
                    asp-route-f="@ViewData["CurrentFilter"]"
                    class="link-dark"
@@ -50,14 +46,11 @@
                     <i class="fas fa-sort"></i> Name
                 </a>
             </th>
-            <th class="table-head-constrained">
-                <a asp-action="Index"
-                   asp-route-s="@ViewData["EmployeesSortParam"]"
-                   asp-route-f="@ViewData["CurrentFilter"]"
-                   class="link-dark"
-                   title="Sort by employee count">
-                    <i class="fas fa-sort"></i> Employees
-                </a>
+            <th>
+                Email
+            </th>
+            <th>
+                Phone
             </th>
             <th></th>
         </tr>
@@ -67,36 +60,42 @@
         {
             <tr>
                 <td>
-                    @if (item.LogoName != null)
-                    {
-                        <a asp-action="Details"
-                           asp-route-id="@item.CompanyId"
-                           class="index-logo-box"
-                           title="View details for @item.Name">
-                            <img src="@("~/img/" + item.LogoName)" asp-append-version="true" class="img-logo" />
-                        </a>
-                    }
-                </td>
-                <td>
                     <a asp-action="Details"
-                       asp-route-id="@item.CompanyId"
-                       title="View details for @item.Name">
-                        @Html.DisplayFor(modelItem => item.Name)
+                       asp-route-id="@item.EmployeeId"
+                       title="View details for @item.FirstName @item.LastName">
+                        @Html.DisplayFor(modelItem => item.FullName)
                     </a>
                 </td>
                 <td>
-                    @item.Employees.Count
+                    @if (item.Email != null)
+                    {
+                        @Html.DisplayFor(modelItem => item.Email)
+                    }
+                    else
+                    {
+                        <span class="no-info">None listed.</span>
+                    }
+                </td>
+                <td>
+                    @if (item.Phone != null)
+                    {
+                        <a href="tel:@Html.DisplayFor(modelItem => item.Phone)">@Html.DisplayFor(modelItem => item.Phone)</a>
+                    }
+                    else
+                    {
+                        <span class="no-info">None listed.</span>
+                    }
                 </td>
                 <td>
                     <div class="index-edit-delete-group">
                         <a asp-action="Edit"
-                           asp-route-id="@item.CompanyId"
+                           asp-route-id="@item.EmployeeId"
                            class="btn btn-outline-secondary"
                            title="Edit">
                             <i class="fas fa-pen-alt"></i><span class="crud-action-text"> Edit</span>
                         </a>
                         <a asp-action="Delete"
-                           asp-route-id="@item.CompanyId"
+                           asp-route-id="@item.EmployeeId"
                            class="btn btn-danger"
                            title="Delete">
                             <i class="fas fa-trash-alt"></i><span class="crud-action-text"> Delete</span>
@@ -107,25 +106,25 @@
         }
     </tbody>
 </table>
+
 @{
     var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
     var nextDisabled = !Model.HasNextPage ? "disabled" : "";
 }
+
 <div class="pagination-buttons">
-    <a asp-action="Index"
+    <a asp-action="Unassigned"
        asp-route-s="@ViewData["CurrentSort"]"
        asp-route-p="@(Model.PageIndex - 1)"
        asp-route-f="@ViewData["CurrentFilter"]"
-       title="Previous page"
        class="btn btn-outline-secondary @prevDisabled">
-        <i class="fas fa-long-arrow-alt-left"></i> Previous
+        Previous
     </a>
-    <a asp-action="Index"
+    <a asp-action="Unassigned"
        asp-route-s="@ViewData["CurrentSort"]"
        asp-route-p="@(Model.PageIndex + 1)"
        asp-route-f="@ViewData["CurrentFilter"]"
-       title="Next page"
        class="btn btn-outline-secondary @nextDisabled">
-        Next <i class="fas fa-long-arrow-alt-right"></i>
+        Next
     </a>
 </div>

@@ -27,38 +27,38 @@ namespace Reflection.Controllers
 
         // GET: Companies
         public async Task<IActionResult> Index(
-            string sortOrder,
-            string currentFilter,
-            string searchString,
-            int? pageNumber)
+            string s, // Sort order
+            string f, // Current filter (search term with sort order)
+            string t, // Search term
+            int? p) // Page number
         {
-            ViewData["CurrentSort"] = sortOrder;
-            ViewData["NameSortParam"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
-            ViewData["EmployeesSortParam"] = sortOrder == "Employees" ? "employees_desc" : "Employees";
+            ViewData["CurrentSort"] = s;
+            ViewData["NameSortParam"] = String.IsNullOrEmpty(s) ? "name_desc" : "";
+            ViewData["EmployeesSortParam"] = s == "Employees" ? "employees_desc" : "Employees";
 
-            if (searchString != null)
+            if (t != null)
             {
-                pageNumber = 1;
+                p = 1;
             }
             else
             {
-                searchString = currentFilter;
+                t = f;
             }
 
-            ViewData["CurrentFilter"] = searchString;
+            ViewData["CurrentFilter"] = t;
 
-            //var companies = from c in _context.Companies
-            //                 select c;
             var companies = _context.Companies
                 .Include(c => c.Employees)
                 .Select(c => c);
 
-            if (!String.IsNullOrEmpty(searchString))
+            if (!String.IsNullOrEmpty(t))
             {
-                companies = companies.Where(c => c.Name.Contains(searchString));
+                companies = companies.Where(c => c.Name.Contains(t)
+                || c.Email.Contains(t)
+                || c.Website.Contains(t));
             }
 
-            switch (sortOrder)
+            switch (s)
             {
                 case "name_desc":
                     companies = companies.OrderByDescending(c => c.Name);
@@ -75,7 +75,7 @@ namespace Reflection.Controllers
             }
 
             int pageSize = 10;
-            return View(await PaginatedList<Company>.CreateAsync(companies.AsNoTracking(), pageNumber ?? 1, pageSize));
+            return View(await PaginatedList<Company>.CreateAsync(companies.AsNoTracking(), p ?? 1, pageSize));
         }
 
         // GET: Companies/Details/5
@@ -104,8 +104,6 @@ namespace Reflection.Controllers
         }
 
         // POST: Companies/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Name,Email,Website,LogoFile")] Company company)
@@ -162,11 +160,9 @@ namespace Reflection.Controllers
         }
 
         // POST: Companies/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditPost(int? id, Company company)
+        public async Task<IActionResult> EditPost(int? id, [Bind("Name,Email,Website,LogoFile")] Company company)
         {
             if (id == null)
             {

@@ -28,13 +28,27 @@
             @Html.DisplayNameFor(model => model.Email)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Email)
+            @if (Model.Email != null)
+            {
+                @Html.DisplayFor(model => model.Email)
+            }
+            else
+            {
+                <span class="no-info">None listed.</span>
+            }
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Website)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Website)
+            @if (Model.Website != null)
+            {
+                <a href="@Model.Website" target="_blank">@Html.DisplayFor(model => model.Website)</a>
+            }
+            else
+            {
+                <span class="no-info">None listed.</span>
+            }
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.LogoName)

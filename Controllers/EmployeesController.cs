@@ -22,47 +22,52 @@ namespace Reflection.Controllers
 
         // GET: Employees
         public async Task<IActionResult> Index(
-            string sortOrder,
-            string currentFilter,
-            string searchString,
-            int? pageNumber)
+            string s, // Sort order
+            string f, // Current filter (search term with sort order)
+            string t, // Search term
+            int? p) // Page number
         {
-            ViewData["CurrentSort"] = sortOrder;
-            ViewData["NameSortParam"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
-            ViewData["CompanySortParam"] = sortOrder == "Company" ? "company_desc" : "Company";
+            ViewData["CurrentSort"] = s;
+            ViewData["NameSortParam"] = String.IsNullOrEmpty(s) ? "Name_desc" : "";
+            ViewData["CompanySortParam"] = s == "Company" ? "Company_desc" : "Company";
 
-            if (searchString != null)
+            if (t != null)
             {
-                pageNumber = 1;
+                p = 1;
             }
             else
             {
-                searchString = currentFilter;
+                t = f;
             }
 
-            ViewData["CurrentFilter"] = searchString;
+            ViewData["CurrentFilter"] = t;
 
             var employees = (from e in _context.Employees
-                            join c in _context.Companies on e.CompanyId equals c.CompanyId into ce
-                            from c in ce.DefaultIfEmpty()
-                            select e).Include("Company");
+                             join c in _context.Companies on e.CompanyId equals c.CompanyId
+                             select e).Include("Company");
 
-            if (!String.IsNullOrEmpty(searchString))
+            ViewData["UnassignedEmployees"] = _context.Employees.Where(e => e.CompanyId == null).Count();
+
+            if (!String.IsNullOrEmpty(t))
             {
-                employees = employees.Where(e => e.LastName.Contains(searchString)
-                    || e.FirstName.Contains(searchString)
-                    || e.Company.Name.Contains(searchString));
+                employees = employees.AsQueryable().Where(e => e.LastName.Contains(t)
+                    || e.FirstName.Contains(t)
+                    || (e.LastName + ", " + e.FirstName).Contains(t)
+                    || (e.FirstName + " " + e.LastName).Contains(t)
+                    || e.Email.Contains(t)
+                    || e.Phone.Contains(t)
+                    || e.Company.Name.Contains(t));
             }
 
-            switch (sortOrder)
+            switch (s)
             {
-                case "name_desc":
+                case "Name_desc":
                     employees = employees.OrderByDescending(e => e.LastName);
                     break;
                 case "Company":
                     employees = employees.OrderBy(e => e.CompanyId);
                     break;
-                case "company_desc":
+                case "Company_desc":
                     employees = employees.OrderByDescending(e => e.CompanyId);
                     break;
                 default:
@@ -72,7 +77,60 @@ namespace Reflection.Controllers
 
             int pageSize = 10;
 
-            return View(await PaginatedList<Employee>.CreateAsync(employees.AsNoTracking(), pageNumber ?? 1, pageSize));
+            return View(await PaginatedList<Employee>.CreateAsync(employees.AsNoTracking(), p ?? 1, pageSize));
+        }
+
+        // GET: Unassigned Employees
+        public async Task<IActionResult> Unassigned(
+            string s, // Sort order
+            string f, // Current filter (search term with sort order)
+            string t, // Search term
+            int? p) // Page number
+        {
+            ViewData["CurrentSort"] = s;
+            ViewData["NameSortParam"] = String.IsNullOrEmpty(s) ? "name_desc" : "";
+
+            if (t != null)
+            {
+                p = 1;
+            }
+            else
+            {
+                t = f;
+            }
+
+            ViewData["CurrentFilter"] = t;
+
+            var employees = _context.Employees.Where(e => e.CompanyId == null);
+
+            if (!employees.Any())
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (!String.IsNullOrEmpty(t))
+            {
+                employees = employees.Where(e => e.LastName.Contains(t)
+                    || e.FirstName.Contains(t)
+                    || (e.LastName + ", " + e.FirstName).Contains(t)
+                    || (e.FirstName + " " + e.LastName).Contains(t)
+                    || e.Email.Contains(t)
+                    || e.Phone.Contains(t));
+            }
+
+            switch (s)
+            {
+                case "name_desc":
+                    employees = employees.OrderByDescending(e => e.LastName);
+                    break;
+                default:
+                    employees = employees.OrderBy(e => e.LastName);
+                    break;
+            }
+
+            int pageSize = 10;
+
+            return View(await PaginatedList<Employee>.CreateAsync(employees.AsNoTracking(), p ?? 1, pageSize));
         }
 
         // GET: Employees/Details/5
@@ -102,8 +160,6 @@ namespace Reflection.Controllers
         }
 
         // POST: Employees/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("FirstName,LastName,Email,Phone,CompanyId")] Employee employee)
@@ -147,18 +203,21 @@ namespace Reflection.Controllers
         }
 
         // POST: Employees/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditPost(int? id)
+        public async Task<IActionResult> EditPost(int? id, [Bind("FirstName,LastName,Email,Phone,CompanyId")] Employee employee)
         {
+            bool redirectToUnassigned = false;
             if (id == null)
             {
                 return NotFound();
             }
 
             var employeeToUpdate = await _context.Employees.FirstOrDefaultAsync(e => e.EmployeeId == id);
+            if (employeeToUpdate.CompanyId == null)
+            {
+                redirectToUnassigned = true;
+            }
             if (await TryUpdateModelAsync<Employee>(
                 employeeToUpdate,
                 "",
@@ -168,6 +227,10 @@ namespace Reflection.Controllers
                 {
                     await _context.SaveChangesAsync();
                     TempData["MessageSuccess"] = $"<strong>{employeeToUpdate.FirstName} {employeeToUpdate.LastName}</strong> has been updated.";
+                    if (redirectToUnassigned && _context.Employees.Where(e => e.CompanyId == null).Any())
+                    {
+                        return RedirectToAction(nameof(Unassigned));
+                    }
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateException)
@@ -177,8 +240,6 @@ namespace Reflection.Controllers
                     "see your system administrator.");
                 }
             }
-
-            ViewData["CompanyId"] = new SelectList(_context.Companies, "CompanyId", "Name", employeeToUpdate.CompanyId);
             return View(employeeToUpdate);
         }
 
@@ -219,12 +280,21 @@ namespace Reflection.Controllers
             {
                 return RedirectToAction(nameof(Index));
             }
+            bool redirectToUnassigned = false;
+            if (employee.CompanyId == null)
+            {
+                redirectToUnassigned = true;
+            }
 
             try
             {
                 _context.Employees.Remove(employee);
                 await _context.SaveChangesAsync();
                 TempData["MessageSuccess"] = $"<strong>{employee.FirstName} {employee.LastName}</strong> has been deleted.";
+                if (redirectToUnassigned && _context.Employees.Where(e => e.CompanyId == null).Any())
+                {
+                    return RedirectToAction(nameof(Unassigned));
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException)

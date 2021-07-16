@@ -23,7 +23,7 @@ namespace Reflection.Models
         [StringLength(100, ErrorMessage = "Email address must be 100 characters or less.")]
         public string Email { get; set; }
 
-        [Url(ErrorMessage = "Please enter a valid URL (with http:// or https:// included).")]
+        [Url(ErrorMessage = "Email address must be 100 characters or less.")]
         [StringLength(100, ErrorMessage = "Website must be 100 characters or less.")]
         public string Website { get; set; }
 
