@@ -1,12 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Reflection.Validation;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Reflection.Models
 {
@@ -23,7 +20,7 @@ namespace Reflection.Models
         [StringLength(100, ErrorMessage = "Email address must be 100 characters or less.")]
         public string Email { get; set; }
 
-        [Url(ErrorMessage = "Email address must be 100 characters or less.")]
+        [Url(ErrorMessage = "Please enter a valid URL with http(s):// prefix.")]
         [StringLength(100, ErrorMessage = "Website must be 100 characters or less.")]
         public string Website { get; set; }
 

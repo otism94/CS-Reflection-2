@@ -1,9 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Reflection.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Reflection.Data
 {
@@ -12,7 +8,7 @@ namespace Reflection.Data
         public Context(DbContextOptions<Context> options) : base(options)
         {
         }
-        
+
         public DbSet<Company> Companies { get; set; }
         public DbSet<Employee> Employees { get; set; }
 

@@ -1,21 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Drawing;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Reflection.Validation
 {
-    public class UrlOptionalPrefix : ValidationAttribute
-    {
-
-    }
-
     public class MinDimensions : ValidationAttribute
     {
         private readonly int _minDimensions;
@@ -26,16 +17,15 @@ namespace Reflection.Validation
         }
 
         protected override ValidationResult IsValid(
-            object value, 
+            object value,
             ValidationContext validationContext)
         {
             try
             {
-                var file = value as IFormFile;
-                if (file != null)
+                if (value is IFormFile file)
                 {
-                    using (var image = Image.FromStream(file.OpenReadStream()))
                     {
+                        using var image = Image.FromStream(file.OpenReadStream());
                         if (image.Width < _minDimensions && image.Height < _minDimensions)
                         {
                             return new ValidationResult(GetErrorMessage());
@@ -71,8 +61,7 @@ namespace Reflection.Validation
         {
             try
             {
-                var file = value as IFormFile;
-                if (file != null)
+                if (value is IFormFile file)
                 {
                     if (file.Length > _maxFileSize)
                     {
@@ -103,8 +92,7 @@ namespace Reflection.Validation
         {
             try
             {
-                var file = value as IFormFile;
-                if (file != null)
+                if (value is IFormFile file)
                 {
                     string fileExtension = Path.GetExtension(file.FileName);
                     if (!_validExtensions.Contains(fileExtension))
@@ -118,7 +106,7 @@ namespace Reflection.Validation
             {
                 return new ValidationResult("Error validating file. Please try again.");
             }
-            
+
         }
 
         public string GetErrorMessage()

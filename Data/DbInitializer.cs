@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Reflection.Models;
 using System.Linq;
-using System.Threading.Tasks;
-using Reflection.Models;
 
 namespace Reflection.Data
 {
@@ -54,10 +51,26 @@ namespace Reflection.Data
             {
                 new Employee()
                 {
+                    FirstName = "Robert",
+                    LastName = "Speedwagon",
+                    Email = "reospeedwagon@speedwagon.org",
+                    Phone = "00498477938",
+                    CompanyId = 1
+                },
+                new Employee()
+                {
                     FirstName = "Joseph",
                     LastName = "Joestar",
                     Email = "joseph@speedwagon.org",
                     Phone = "03957937583",
+                    CompanyId = 1
+                },
+                new Employee()
+                {
+                    FirstName = "Lucy",
+                    LastName = "Steel",
+                    Email = "tickettoride@speedwagon.org",
+                    Phone = "08856977463",
                     CompanyId = 1
                 },
                 new Employee()
@@ -70,10 +83,42 @@ namespace Reflection.Data
                 },
                 new Employee()
                 {
+                    FirstName = "Reeve",
+                    LastName = "Tuesti",
+                    Email = "notcaitsith@shinra.com",
+                    Phone = "09019858836",
+                    CompanyId = 2
+                },
+                new Employee()
+                {
+                    FirstName = "Zack",
+                    LastName = "Fair",
+                    Email = "soldier@shinra.com",
+                    Phone = "09998476635",
+                    CompanyId = 2
+                },
+                new Employee()
+                {
+                    FirstName = "Exeter",
+                    LastName = "Schlessinger",
+                    Email = "ceo@lynxcorp.com",
+                    Phone = "089375674884",
+                    CompanyId = 3
+                },
+                new Employee()
+                {
                     FirstName = "Calyssia",
                     LastName = "Rai-Paulsen",
                     Email = "scrapdept@lynxcorp.com",
                     Phone = "08477940166",
+                    CompanyId = 3
+                },
+                new Employee()
+                {
+                    FirstName = "Weaver",
+                    LastName = "McWeaver",
+                    Email = "weaver@lynxcorp.com",
+                    Phone = "08664583940",
                     CompanyId = 3
                 }
             };

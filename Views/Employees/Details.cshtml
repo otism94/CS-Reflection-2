@@ -18,7 +18,9 @@
         <li class="breadcrumb-item active" aria-current="page">@Html.DisplayFor(model => model.FullName)</li>
     </ol>
 </nav>
+
 <h1 class="model-heading">Details for @Html.DisplayFor(model => model.FirstName) @Html.DisplayFor(model => model.LastName)</h1>
+
 <div>
     <hr />
     <dl class="row">
@@ -86,6 +88,7 @@
         </dd>
     </dl>
 </div>
+
 <div>
     <a asp-action="Edit"
        asp-route-id="@Model.EmployeeId"

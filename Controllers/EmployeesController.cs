@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Reflection.Data;
 using Reflection.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Reflection.Controllers
 {
@@ -20,12 +20,19 @@ namespace Reflection.Controllers
             _context = context;
         }
 
-        // GET: Employees
+        /// <summary>
+        /// GET: Assigned employees.
+        /// </summary>
+        /// <param name="s">Sort order.</param>
+        /// <param name="f">Current filter (i.e. search term when there is a sort order).</param>
+        /// <param name="t">Search term.</param>
+        /// <param name="p">Page number.</param>
+        /// <returns>Paginated list view of assigned employees.</returns>
         public async Task<IActionResult> Index(
-            string s, // Sort order
-            string f, // Current filter (search term with sort order)
-            string t, // Search term
-            int? p) // Page number
+            string s,
+            string f,
+            string t,
+            int? p)
         {
             ViewData["CurrentSort"] = s;
             ViewData["NameSortParam"] = String.IsNullOrEmpty(s) ? "Name_desc" : "";
@@ -59,33 +66,32 @@ namespace Reflection.Controllers
                     || e.Company.Name.Contains(t));
             }
 
-            switch (s)
+            employees = s switch
             {
-                case "Name_desc":
-                    employees = employees.OrderByDescending(e => e.LastName);
-                    break;
-                case "Company":
-                    employees = employees.OrderBy(e => e.CompanyId);
-                    break;
-                case "Company_desc":
-                    employees = employees.OrderByDescending(e => e.CompanyId);
-                    break;
-                default:
-                    employees = employees.OrderBy(e => e.LastName);
-                    break;
-            }
+                "Name_desc" => employees.OrderByDescending(e => e.LastName),
+                "Company" => employees.OrderBy(e => e.CompanyId),
+                "Company_desc" => employees.OrderByDescending(e => e.CompanyId),
+                _ => employees.OrderBy(e => e.LastName),
+            };
 
             int pageSize = 10;
 
             return View(await PaginatedList<Employee>.CreateAsync(employees.AsNoTracking(), p ?? 1, pageSize));
         }
 
-        // GET: Unassigned Employees
+        /// <summary>
+        /// GET: Unassigned employees.
+        /// </summary>
+        /// <param name="s">Sort order.</param>
+        /// <param name="f">Current filter (i.e. search term when there is a sort order).</param>
+        /// <param name="t">Search term.</param>
+        /// <param name="p">Page number.</param>
+        /// <returns>Paginated list view of unassigned employees.</returns>
         public async Task<IActionResult> Unassigned(
-            string s, // Sort order
-            string f, // Current filter (search term with sort order)
-            string t, // Search term
-            int? p) // Page number
+            string s,
+            string f,
+            string t,
+            int? p)
         {
             ViewData["CurrentSort"] = s;
             ViewData["NameSortParam"] = String.IsNullOrEmpty(s) ? "name_desc" : "";
@@ -102,7 +108,6 @@ namespace Reflection.Controllers
             ViewData["CurrentFilter"] = t;
 
             var employees = _context.Employees.Where(e => e.CompanyId == null);
-
             if (!employees.Any())
             {
                 return RedirectToAction(nameof(Index));
@@ -118,22 +123,22 @@ namespace Reflection.Controllers
                     || e.Phone.Contains(t));
             }
 
-            switch (s)
+            employees = s switch
             {
-                case "name_desc":
-                    employees = employees.OrderByDescending(e => e.LastName);
-                    break;
-                default:
-                    employees = employees.OrderBy(e => e.LastName);
-                    break;
-            }
+                "name_desc" => employees.OrderByDescending(e => e.LastName),
+                _ => employees.OrderBy(e => e.LastName),
+            };
 
             int pageSize = 10;
 
             return View(await PaginatedList<Employee>.CreateAsync(employees.AsNoTracking(), p ?? 1, pageSize));
         }
 
-        // GET: Employees/Details/5
+        /// <summary>
+        /// GET: Employee details.
+        /// </summary>
+        /// <param name="id">Entity's EmployeeId.</param>
+        /// <returns>Employee details view.</returns>
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -152,14 +157,21 @@ namespace Reflection.Controllers
             return View(employee);
         }
 
-        // GET: Employees/Create
+        /// <summary>
+        /// GET: Create employee.
+        /// </summary>
+        /// <returns>Create employee view.</returns>
         public IActionResult Create()
         {
             ViewData["CompanyId"] = new SelectList(_context.Companies, "CompanyId", "Name");
             return View();
         }
 
-        // POST: Employees/Create
+        /// <summary>
+        /// POST: Create employee.
+        /// </summary>
+        /// <param name="employee">User-entered details for the employee entity.</param>
+        /// <returns>Employees index view on success.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("FirstName,LastName,Email,Phone,CompanyId")] Employee employee)
@@ -180,12 +192,16 @@ namespace Reflection.Controllers
                 "Try again, and if the problem persists " +
                 "see your system administrator.");
             }
-            
+
             ViewData["CompanyId"] = new SelectList(_context.Companies, "CompanyId", "Name", employee.CompanyId);
             return View(employee);
         }
 
-        // GET: Employees/Edit/5
+        /// <summary>
+        /// GET: Edit employee view.
+        /// </summary>
+        /// <param name="id">Entity's EmployeeId.</param>
+        /// <returns>Employee edit view.</returns>
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -193,31 +209,41 @@ namespace Reflection.Controllers
                 return NotFound();
             }
 
-            var employee = await _context.Employees.FindAsync(id);
+            var employee = await _context.Employees
+                .Include(e => e.Company)
+                .FirstOrDefaultAsync(e => e.EmployeeId == id);
             if (employee == null)
             {
                 return NotFound();
             }
+            
             ViewData["CompanyId"] = new SelectList(_context.Companies, "CompanyId", "Name", employee.CompanyId);
+            
             return View(employee);
         }
 
-        // POST: Employees/Edit/5
+        /// <summary>
+        /// POST: Edit employee.
+        /// </summary>
+        /// <param name="id">Entity's EmployeeId.</param>
+        /// <param name="employee">User-entered details for the employee entity.</param>
+        /// <returns>Employees index view on success.</returns>
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditPost(int? id, [Bind("FirstName,LastName,Email,Phone,CompanyId")] Employee employee)
         {
-            bool redirectToUnassigned = false;
             if (id == null)
             {
                 return NotFound();
             }
 
             var employeeToUpdate = await _context.Employees.FirstOrDefaultAsync(e => e.EmployeeId == id);
+            bool redirectToUnassigned = false;
             if (employeeToUpdate.CompanyId == null)
             {
                 redirectToUnassigned = true;
             }
+
             if (await TryUpdateModelAsync<Employee>(
                 employeeToUpdate,
                 "",
@@ -227,10 +253,12 @@ namespace Reflection.Controllers
                 {
                     await _context.SaveChangesAsync();
                     TempData["MessageSuccess"] = $"<strong>{employeeToUpdate.FirstName} {employeeToUpdate.LastName}</strong> has been updated.";
+                    
                     if (redirectToUnassigned && _context.Employees.Where(e => e.CompanyId == null).Any())
                     {
                         return RedirectToAction(nameof(Unassigned));
                     }
+
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateException)
@@ -240,10 +268,16 @@ namespace Reflection.Controllers
                     "see your system administrator.");
                 }
             }
+
             return View(employeeToUpdate);
         }
 
-        // GET: Employees/Delete/5
+        /// <summary>
+        /// GET: Employee delete view.
+        /// </summary>
+        /// <param name="id">Entity's EmployeeId.</param>
+        /// <param name="saveChangesError">Whether the view was accessed via a failed post attempt.</param>
+        /// <returns>Employee delete view.</returns>
         public async Task<IActionResult> Delete(int? id, bool? saveChangesError = false)
         {
             if (id == null)
@@ -254,7 +288,7 @@ namespace Reflection.Controllers
             var employee = await _context.Employees
                 .AsNoTracking()
                 .Include(e => e.Company)
-                .FirstOrDefaultAsync(m => m.EmployeeId == id);
+                .FirstOrDefaultAsync(e => e.EmployeeId == id);
             if (employee == null)
             {
                 return NotFound();
@@ -270,7 +304,11 @@ namespace Reflection.Controllers
             return View(employee);
         }
 
-        // POST: Employees/Delete/5
+        /// <summary>
+        /// POST: Delete employee.
+        /// </summary>
+        /// <param name="id">Entity's EmployeeId.</param>
+        /// <returns>Employees index view on success.</returns>
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -280,6 +318,7 @@ namespace Reflection.Controllers
             {
                 return RedirectToAction(nameof(Index));
             }
+
             bool redirectToUnassigned = false;
             if (employee.CompanyId == null)
             {
@@ -291,10 +330,12 @@ namespace Reflection.Controllers
                 _context.Employees.Remove(employee);
                 await _context.SaveChangesAsync();
                 TempData["MessageSuccess"] = $"<strong>{employee.FirstName} {employee.LastName}</strong> has been deleted.";
+                
                 if (redirectToUnassigned && _context.Employees.Where(e => e.CompanyId == null).Any())
                 {
                     return RedirectToAction(nameof(Unassigned));
                 }
+
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException)
@@ -304,11 +345,20 @@ namespace Reflection.Controllers
             }
         }
 
+        /// <summary>
+        /// Checks whether an employee with the supplied ID exists.
+        /// </summary>
+        /// <param name="id">Entity's EmployeeId.</param>
+        /// <returns>True if employee exists, otherwise false.</returns>
         private bool EmployeeExists(int id)
         {
             return _context.Employees.Any(e => e.EmployeeId == id);
         }
 
+        /// <summary>
+        /// Disposes the context once operations are complete.
+        /// </summary>
+        /// <param name="disposing">Whether the context needs to be disposed.</param>
         protected override void Dispose(bool disposing)
         {
             if (_disposed)

@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Reflection.Data;
 using Reflection.Models;
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Reflection.Controllers
 {
@@ -18,19 +15,26 @@ namespace Reflection.Controllers
         private readonly Context _context;
         private readonly IWebHostEnvironment _hostEnvironment;
         private bool _disposed = false;
-        
+
         public CompaniesController(Context context, IWebHostEnvironment hostEnvironment)
         {
             _context = context;
             _hostEnvironment = hostEnvironment;
         }
 
-        // GET: Companies
+        /// <summary>
+        /// GET: Companies.
+        /// </summary>
+        /// <param name="s">Sort order.</param>
+        /// <param name="f">Current filter (i.e. search term when there is a sort order).</param>
+        /// <param name="t">Search term.</param>
+        /// <param name="p">Page number.</param>
+        /// <returns>Paginated list view of companies.</returns>
         public async Task<IActionResult> Index(
-            string s, // Sort order
-            string f, // Current filter (search term with sort order)
-            string t, // Search term
-            int? p) // Page number
+            string s,
+            string f,
+            string t,
+            int? p)
         {
             ViewData["CurrentSort"] = s;
             ViewData["NameSortParam"] = String.IsNullOrEmpty(s) ? "name_desc" : "";
@@ -58,27 +62,24 @@ namespace Reflection.Controllers
                 || c.Website.Contains(t));
             }
 
-            switch (s)
+            companies = s switch
             {
-                case "name_desc":
-                    companies = companies.OrderByDescending(c => c.Name);
-                    break;
-                case "Employees":
-                    companies = companies.OrderBy(c => c.Employees.Count);
-                    break;
-                case "employees_desc":
-                    companies = companies.OrderByDescending(c => c.Employees.Count);
-                    break;
-                default:
-                    companies = companies.OrderBy(c => c.Name);
-                    break;
-            }
+                "name_desc" => companies.OrderByDescending(c => c.Name),
+                "Employees" => companies.OrderBy(c => c.Employees.Count),
+                "employees_desc" => companies.OrderByDescending(c => c.Employees.Count),
+                _ => companies.OrderBy(c => c.Name),
+            };
 
             int pageSize = 10;
+
             return View(await PaginatedList<Company>.CreateAsync(companies.AsNoTracking(), p ?? 1, pageSize));
         }
 
-        // GET: Companies/Details/5
+        /// <summary>
+        /// GET: Company details.
+        /// </summary>
+        /// <param name="id">Entity's CompanyId.</param>
+        /// <returns>Company details view.</returns>
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -97,13 +98,20 @@ namespace Reflection.Controllers
             return View(company);
         }
 
-        // GET: Companies/Create
+        /// <summary>
+        /// GET: Create company.
+        /// </summary>
+        /// <returns>Create company view.</returns>
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Companies/Create
+        /// <summary>
+        /// POST: Create company.
+        /// </summary>
+        /// <param name="company">User-entered details for the company entity.</param>
+        /// <returns>Companies index view on success.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Name,Email,Website,LogoFile")] Company company)
@@ -122,8 +130,8 @@ namespace Reflection.Controllers
                         string filePath = Path.Combine(wwwRootPath + "/img/", fileName);
 
                         // Save the file to wwwroot/img/.
-                        using (FileStream fileStream = new(filePath, FileMode.Create))
                         {
+                            using FileStream fileStream = new(filePath, FileMode.Create);
                             await company.LogoFile.CopyToAsync(fileStream);
                         }
                     }
@@ -140,10 +148,15 @@ namespace Reflection.Controllers
                 "Try again, and if the problem persists " +
                 "see your system administrator.");
             }
+
             return View(company);
         }
 
-        // GET: Companies/Edit/5
+        /// <summary>
+        /// GET: Edit company view.
+        /// </summary>
+        /// <param name="id">Entity's CompanyId.</param>
+        /// <returns>Company edit view.</returns>
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -156,10 +169,16 @@ namespace Reflection.Controllers
             {
                 return NotFound();
             }
+
             return View(company);
         }
 
-        // POST: Companies/Edit/5
+        /// <summary>
+        /// POST: Edit company.
+        /// </summary>
+        /// <param name="id">Entity's CompanyId.</param>
+        /// <param name="company">User-entered details for the company entity.</param>
+        /// <returns>Companies index view on success.</returns>
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditPost(int? id, [Bind("Name,Email,Website,LogoFile")] Company company)
@@ -219,7 +238,12 @@ namespace Reflection.Controllers
             return View(companyToUpdate);
         }
 
-        // GET: Companies/Delete/5
+        /// <summary>
+        /// GET: Company delete view.
+        /// </summary>
+        /// <param name="id">Entity's CompanyId.</param>
+        /// <param name="saveChangesError">Whether the view was accessed via a failed post attempt.</param>
+        /// <returns>Company delete view.</returns>
         public async Task<IActionResult> Delete(int? id, bool? saveChangesError = false)
         {
             if (id == null)
@@ -246,7 +270,12 @@ namespace Reflection.Controllers
             return View(company);
         }
 
-        // POST: Companies/Delete/5
+        /// <summary>
+        /// POST: Delete company.
+        /// </summary>
+        /// <param name="id">Entity's CompanyId.</param>
+        /// <param name="deleteEmployees">Checkbox value for whether to delete company's employees.</param>
+        /// <returns>Companies index view on success.</returns>
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id, string deleteEmployees)
@@ -271,7 +300,6 @@ namespace Reflection.Controllers
                 var employees = _context.Employees.Where(e => e.CompanyId == id);
                 if (deleteEmployees != null)
                 {
-                    
                     foreach (var employee in employees)
                     {
                         _context.Employees.Remove(employee);
@@ -297,11 +325,20 @@ namespace Reflection.Controllers
             }
         }
 
+        /// <summary>
+        /// Checks whether a company with the supplied ID exists.
+        /// </summary>
+        /// <param name="id">Entity's CompanyId.</param>
+        /// <returns>True if company exists, otherwise false.</returns>
         private bool CompanyExists(int id)
         {
             return _context.Companies.Any(e => e.CompanyId == id);
         }
 
+        /// <summary>
+        /// Disposes the context once operations are complete.
+        /// </summary>
+        /// <param name="disposing">Whether the context needs to be disposed.</param>
         protected override void Dispose(bool disposing)
         {
             if (_disposed)

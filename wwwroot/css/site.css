@@ -104,13 +104,16 @@ body {
     list-style: none;
 }
 
-.card-list .list-group-item {
-    margin-bottom: 10px;
+.list-group-item a {
+    display: block;
 }
 
 .list-group-item:hover {
     border-color: #007bff;
     background-color: #007bff;
+}
+
+.list-group-item:hover a {
     color: white;
     text-decoration: none;
 }
@@ -264,4 +267,10 @@ td {
 
 .form-checkbox-group label {
     margin-left: 10px;
+}
+
+/* Additional company details styling
+    -------------------------------------------------- */
+.company-details-actions {
+    margin-bottom: 40px;
 }

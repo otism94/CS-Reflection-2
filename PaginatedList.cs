@@ -16,7 +16,7 @@ namespace Reflection
             PageIndex = pageIndex;
             TotalPages = (int)Math.Ceiling(count / (double)pageSize);
 
-            this.AddRange(items);
+            AddRange(items);
         }
 
         public bool HasPreviousPage
@@ -35,6 +35,13 @@ namespace Reflection
             }
         }
 
+        /// <summary>
+        /// Generates the current page of paginated database entities.
+        /// </summary>
+        /// <param name="source">IQueryable list of entities to paginate.</param>
+        /// <param name="pageIndex">Current page.</param>
+        /// <param name="pageSize">Number of items per page.</param>
+        /// <returns>Paginated list task.</returns>
         public static async Task<PaginatedList<T>> CreateAsync(IQueryable<T> source, int pageIndex, int pageSize)
         {
             var count = await source.CountAsync();

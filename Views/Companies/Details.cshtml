@@ -10,7 +10,9 @@
         <li class="breadcrumb-item active" aria-current="page">@Html.DisplayFor(model => model.Name)</li>
     </ol>
 </nav>
+
 <h1 class="model-heading">Details for @Html.DisplayFor(model => model.Name)</h1>
+
 <div>
     <hr />
     <dl class="row">
@@ -39,7 +41,7 @@
         <dd class="col-sm-10">
             @if (Model.Website != null)
             {
-            <a href="@Model.Website" target="_blank">@Html.DisplayFor(model => model.Website)</a>
+                <a href="@Model.Website" target="_blank">@Html.DisplayFor(model => model.Website)</a>
             }
             else
             {
@@ -61,6 +63,24 @@
                 <span class="no-info">No logo provided.</span>
             }
         </dd>
+    </dl>
+
+    <div class="company-details-actions">
+        <a asp-action="Edit"
+           asp-route-id="@Model.CompanyId"
+           class="btn btn-outline-secondary"
+           title="Edit">
+            <i class="fas fa-pen-alt"></i> Edit
+        </a>
+        <a asp-action="Delete"
+           asp-route-id="@Model.CompanyId"
+           class="btn btn-danger"
+           title="Delete">
+            <i class="fas fa-trash-alt"></i> Delete
+        </a>
+    </div>
+
+    <dl class="row">
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Employees)
         </dt>
@@ -73,37 +93,38 @@
                 </tr>
                 @foreach (var item in Model.Employees)
                 {
-    <tr>
-        <td>
-            <a asp-controller="Employees" 
-               asp-action="Details" 
-               asp-route-id="@item.EmployeeId"
-               title="View details for @Html.DisplayFor(modelItem => item.FirstName) @Html.DisplayFor(modelItem => item.LastName)">
-                @Html.DisplayFor(modelItem => item.FullName)
-            </a>
-</td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Email)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Phone)
-        </td>
-    </tr>}
+                    <tr>
+                        <td>
+                            <a asp-controller="Employees"
+                               asp-action="Details"
+                               asp-route-id="@item.EmployeeId"
+                               title="View details for @Html.DisplayFor(modelItem => item.FirstName) @Html.DisplayFor(modelItem => item.LastName)">
+                                @Html.DisplayFor(modelItem => item.FullName)
+                            </a>
+                        </td>
+                        <td>
+                            @if (item.Email != null)
+                            {
+                                @Html.DisplayFor(modelItem => item.Email)
+                            }
+                            else
+                            {
+                                <span class="no-info">None listed.</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.Phone != null)
+                            {
+                                <a href="tel:@Html.DisplayFor(modelItem => item.Phone)">@Html.DisplayFor(modelItem => item.Phone)</a>
+                            }
+                            else
+                            {
+                                <span class="no-info">None listed.</span>
+                            }
+                        </td>
+                    </tr>
+                }
             </table>
         </dd>
     </dl>
-</div>
-<div>
-    <a asp-action="Edit"
-       asp-route-id="@Model.CompanyId"
-       class="btn btn-outline-secondary"
-       title="Edit">
-        <i class="fas fa-pen-alt"></i> Edit
-    </a>
-    <a asp-action="Delete"
-       asp-route-id="@Model.CompanyId"
-       class="btn btn-danger"
-       title="Delete">
-        <i class="fas fa-trash-alt"></i> Delete
-    </a>
 </div>

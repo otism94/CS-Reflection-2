@@ -37,7 +37,7 @@ else if ((int)ViewData["UnassignedEmployees"] > 1)
 
 <a asp-action="Create" title="Add" class="btn btn-success btn-add"><i class="fas fa-plus-circle"></i><span class="crud-action-text"> Add</span></a>
 
-<form asp-action="Unassigned" method="get" class="search-container-container">
+<form asp-action="Index" method="get" class="search-container-container">
     <div class="form-actions no-color search-container">
         <input type="text" name="t" value="@ViewData["CurrentFilter"]" class="form-control searchbar" />
         <input type="submit" value="Search" class="btn btn-primary" title="Search" />
@@ -86,7 +86,7 @@ else if ((int)ViewData["UnassignedEmployees"] > 1)
                 <td>
                     @if (item.CompanyId != null)
                     {
-                        <a asp-controller="Company"
+                        <a asp-controller="Companies"
                            asp-action="Details"
                            asp-route-id="@item.CompanyId"
                            title="View details for @item.Company.Name"
